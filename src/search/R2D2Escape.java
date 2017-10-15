@@ -89,8 +89,8 @@ public class R2D2Escape extends SearchProblem {
 
 	@Override
 	public boolean goalTest(Object state) {
-		// TODO Auto-generated method stub
-		return false;
+		State s = (State) state;
+		return ((s.r2d2Y==s.tY)&&(s.r2d2X==s.tX)&&(s.nRocks==0));
 	}
 
 	@Override
