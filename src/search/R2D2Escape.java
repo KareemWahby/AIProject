@@ -15,6 +15,7 @@ public class R2D2Escape extends SearchProblem {
 		int nBlocks = r.nextInt(n);
 		int portalx = r.nextInt(n);
 		int portaly = r.nextInt(m);
+		//for testing
 //		System.out.println("m=" + m + " n=" + n);
 //		System.out.println("r2d2 " + r2d2y + "," + r2d2x);
 //		System.out.println("portal" + portaly + "," + portalx);
