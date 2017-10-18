@@ -8,6 +8,11 @@ public class R2D2Escape extends SearchProblem {
 	public final int E = 2;
 	public final int S = 3;
 	public final int W = 4;
+	
+	public R2D2Escape() {
+		super();
+		this.actions=new Integer[]{N,E,S,W};
+	}
 
 	public void genGrid() {
 		Random r = new Random();
@@ -86,7 +91,6 @@ public class R2D2Escape extends SearchProblem {
 		int a = (int) action;
 		switch (a) {
 		case N:
-
 			break;
 		case E:
 			break;
