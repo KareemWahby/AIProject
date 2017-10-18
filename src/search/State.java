@@ -13,7 +13,4 @@ public class State {
 		this.nRocks = nRocks;
 
 	}
-
-
-
 }
