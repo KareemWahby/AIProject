@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class R2D2Escape extends SearchProblem {
+	public final int N = 1;
+	public final int E = 2;
+	public final int S = 3;
+	public final int W = 4;
 
 	public void genGrid() {
 		Random r = new Random();
@@ -15,11 +19,11 @@ public class R2D2Escape extends SearchProblem {
 		int nBlocks = r.nextInt(n);
 		int portalx = r.nextInt(n);
 		int portaly = r.nextInt(m);
-		//for testing
-//		System.out.println("m=" + m + " n=" + n);
-//		System.out.println("r2d2 " + r2d2y + "," + r2d2x);
-//		System.out.println("portal" + portaly + "," + portalx);
-//		System.out.println("blocks " + nBlocks + " rocks/Ppads " + nRocks);
+		// for testing
+		// System.out.println("m=" + m + " n=" + n);
+		// System.out.println("r2d2 " + r2d2y + "," + r2d2x);
+		// System.out.println("portal" + portaly + "," + portalx);
+		// System.out.println("blocks " + nBlocks + " rocks/Ppads " + nRocks);
 		int r2d2X, r2d2Y;
 		int portalX, portalY;
 		r2d2X = r2d2x;
@@ -78,20 +82,120 @@ public class R2D2Escape extends SearchProblem {
 
 	@Override
 	public Object transferFunction(Object state, Object action) {
-		// TODO Kareem Wahby
+		State s = (State) state;
+		int a = (int) action;
+		switch (a) {
+		case N:
+
+			break;
+		case E:
+			break;
+		case S:
+			break;
+		case W:
+			break;
+		default:
+			break;
+		}
 		return null;
 	}
 
 	@Override
 	public ArrayList<Object> computeActions(Object state) {
-		// TODO Kareem Wahby
-		return null;
+		State s = (State) state;
+		ArrayList<Object> ac = new ArrayList<>();
+		String n1, n2, e1, e2, s1, s2, w1, w2;
+		if (s.r2d2Y - 1 >= 0)
+			n1 = s.grid[s.r2d2Y - 1][s.r2d2X];
+		else
+			n1 = "OOB";
+
+		if (s.r2d2Y - 2 >= 0)
+			n2 = s.grid[s.r2d2Y - 2][s.r2d2X];
+		else
+			n2 = "OOB";
+
+		if (s.r2d2X + 1 < s.grid[s.r2d2X].length)
+			e1 = s.grid[s.r2d2Y][s.r2d2X + 1];
+		else
+			e1 = "OOB";
+
+		if (s.r2d2X + 2 < s.grid[s.r2d2X].length)
+			e2 = s.grid[s.r2d2Y][s.r2d2X + 2];
+		else
+			e2 = "OOB";
+
+		if (s.r2d2Y + 1 < s.grid.length)
+			s1 = s.grid[s.r2d2Y + 1][s.r2d2X];
+		else
+			s1 = "OOB";
+
+		if (s.r2d2Y + 2 < s.grid.length)
+			s2 = s.grid[s.r2d2Y + 2][s.r2d2X];
+		else
+			s2 = "OOB";
+
+		if (s.r2d2X - 1 >= 0)
+			w1 = s.grid[s.r2d2Y][s.r2d2X - 1];
+		else
+			w1 = "OOB";
+
+		if (s.r2d2X - 2 >= 0)
+			w2 = s.grid[s.r2d2Y][s.r2d2X - 2];
+		else
+			w2 = "OOB";
+		if (!n1.equals("OOB"))
+			if (n1.contains("_") || n1.contains("T") || (n1.contains("P") && !n1.contains("R"))) {
+				ac.add(N);
+			} else {
+				if (n1.contains("R")) {
+					if (!n2.equals("OOB"))
+						if (n2.contains("_") || n2.contains("T") || (n2.contains("P") && !n2.contains("R"))) {
+							ac.add(N);
+						}
+				}
+			}
+		if (!e1.equals("OOB"))
+			if (e1.contains("_") || e1.contains("T") || (e1.contains("P") && !e1.contains("R"))) {
+				ac.add(E);
+			} else {
+				if (e1.contains("R")) {
+					if (!e2.equals("OOB"))
+						if (e2.contains("_") || e2.contains("T") || (e2.contains("P") && !e2.contains("R"))) {
+							ac.add(E);
+						}
+				}
+			}
+		if (!s1.equals("OOB"))
+			if (s1.contains("_") || s1.contains("T") || (s1.contains("P") && !s1.contains("R"))) {
+				ac.add(S);
+			} else {
+				if (s1.contains("R")) {
+					if (!s2.equals("OOB"))
+						if (s2.contains("_") || s2.contains("T") || (s2.contains("P") && !s2.contains("R"))) {
+							ac.add(S);
+						}
+				}
+			}
+		if (!w1.equals("OOB"))
+			if (w1.contains("_") || w1.contains("T") || (w1.contains("P") && !w1.contains("R"))) {
+				ac.add(W);
+			} else {
+				if (w1.contains("R")) {
+					if (!w2.equals("OOB"))
+						if (w2.contains("_") || w2.contains("T") || (w2.contains("P") && !w2.contains("R"))) {
+							ac.add(W);
+						}
+				}
+			}
+
+		return ac;
 	}
 
 	@Override
 	public boolean goalTest(Object state) {
 		State s = (State) state;
-		return ((s.r2d2Y==s.tY)&&(s.r2d2X==s.tX)&&(s.nRocks==0));
+		return ((s.r2d2Y == s.tY) && (s.r2d2X == s.tX) && (s.nRocks == 0));
 	}
 
 	@Override
@@ -105,11 +209,10 @@ public class R2D2Escape extends SearchProblem {
 		return 0;
 	}
 
-
 	@Override
 	public void printState(Object state) {
 		State s = (State) state;
-		System.out.println("Rocks left "+s.nRocks);
+		System.out.println("Rocks left " + s.nRocks);
 		for (int i = 0; i < s.grid.length; i++) {
 			for (int j = 0; j < s.grid[i].length; j++) {
 				System.out.print(s.grid[i][j] + " ");
@@ -120,8 +223,11 @@ public class R2D2Escape extends SearchProblem {
 
 	public static void main(String[] args) {
 		R2D2Escape x = new R2D2Escape();
-		x.genGrid();
-		x.printState(x.initialState);
-		
+		//x.genGrid();
+		//x.printState(x.initialState);
+		String g[][]={{"P","_","X","_"},{"T","@","R","_"},{"R","X","_","X"},{"P","P","R","_"}};
+		State s=new State(g, 1, 1, 1);
+		x.printState(s);
+		System.out.println(x.computeActions(s));
 	}
 }
