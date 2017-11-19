@@ -1,5 +1,12 @@
 package search;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,10 +21,15 @@ public class R2D2Escape extends SearchProblem {
 		this.actions = new Integer[] { N, E, S, W };
 	}
 
-	public void genGrid() {
+	public void genGrid() throws IOException {
+		ArrayList<String> prolog=new ArrayList<>();
+		ArrayList<String> prolog2=new ArrayList<>();
+		BufferedWriter writer = new BufferedWriter(new FileWriter("grid.pl"));
 		Random r = new Random();
 		int m = r.nextInt(5) + 1;
 		int n = r.nextInt(5) + 1;
+		prolog.add("% this is the generated grid where grid(x,y):- x=>width, y=>height");
+		prolog.add("grid("+n+","+m+").");
 		int r2d2x = r.nextInt(n);
 		int r2d2y = r.nextInt(m);
 		int nRocks = r.nextInt(m) + 1;
@@ -33,8 +45,10 @@ public class R2D2Escape extends SearchProblem {
 		int portalX, portalY;
 		r2d2X = r2d2x;
 		r2d2Y = r2d2y;
+		prolog2.add("at(r2d2,"+r2d2x+","+r2d2y+").");
 		portalX = portalx;
 		portalY = portaly;
+		prolog2.add("at(portal,"+portalx+","+portaly+").");
 		String[][] grid = new String[m][n];
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
@@ -46,6 +60,7 @@ public class R2D2Escape extends SearchProblem {
 			grid[portalY][portalX] = "T&";
 		else
 			grid[portalY][portalX] = "T";
+		prolog.add("%Blocks");
 		for (int i = 0; i < nBlocks; i++) {
 			int x, y;
 			do {
@@ -53,8 +68,10 @@ public class R2D2Escape extends SearchProblem {
 				y = r.nextInt(m);
 			} while (!grid[y][x].equals("_"));
 			grid[y][x] = "X";
-		}
-
+			prolog.add("block(b"+i+").");
+			prolog2.add("at(b"+i+","+x+","+y+").");
+					}
+		prolog.add("%Rocks");
 		for (int i = 0; i < nRocks; i++) {
 			int x, y;
 			do {
@@ -62,8 +79,10 @@ public class R2D2Escape extends SearchProblem {
 				y = r.nextInt(m);
 			} while (!grid[y][x].equals("_"));
 			grid[y][x] = "R";
+			prolog.add("rock(r"+i+").");
+			prolog2.add("at(r"+i+","+x+","+y+").");
 		}
-
+		prolog.add("%Pressure Pads");
 		for (int i = 0; i < nRocks; i++) {
 			int x, y;
 
@@ -74,8 +93,12 @@ public class R2D2Escape extends SearchProblem {
 
 			if (grid[y][x].contains("R")) {
 				grid[y][x] = grid[y][x] + "P";
+				prolog.add("pPad(p"+i+").");
+				prolog2.add("at(p"+i+","+x+","+y+").");
 			} else {
 				grid[y][x] = "P";
+				prolog.add("pPad(p"+i+").");
+				prolog2.add("at(p"+i+","+x+","+y+").");
 			}
 		}
 
@@ -83,6 +106,16 @@ public class R2D2Escape extends SearchProblem {
 		init.tX = portalX;
 		init.tY = portalY;
 		this.initialState = init;
+		for (String s : prolog) {
+			writer.write(s);
+			writer.newLine();
+		}
+		writer.write("%Locations at(O,X,Y).\n");
+		for (String s : prolog2) {
+			writer.write(s);
+			writer.newLine();
+		}
+		writer.flush();
 	}
 
 	@Override
@@ -104,19 +137,21 @@ public class R2D2Escape extends SearchProblem {
 				n2 = "OOB";
 
 			if (!n1.equals("OOB")) {
-				n0 = n0.replace("&", "");
+				if (n1.equals("_")){
+					n0 = n0.replace("&", "");
 				n0 = (n0.equals("")) ? "_" : n0;
-				if (n1.equals("_"))
 					n1 = "&";
-				else if (n1.contains("T") || (n1.contains("P") && !n1.contains("R"))) {
+				}else if (n1.contains("T") || (n1.contains("P") && !n1.contains("R"))) {
+					n0 = n0.replace("&", "");
+					n0 = (n0.equals("")) ? "_" : n0;
 					n1 += "&";
 				} else {
 					if (n1.contains("R")) {
 						if (!n2.equals("OOB"))
+						if (n2.equals("_")){
 							n1 = n1.replace("R", "");
-						if (n2.equals("_"))
 							n2 = "R";
-						else if (n2.contains("T") || (n2.contains("P") && !n2.contains("R"))) {
+						}else if (n2.contains("T") || (n2.contains("P") && !n2.contains("R"))) {
 							n1 = n1.replace("R", "");
 							n1 += "&";
 							n2 += "R";
@@ -135,11 +170,55 @@ public class R2D2Escape extends SearchProblem {
 			s.r2d2Y-=1;
 			return s;
 		case E:
+			
 			break;
 		case S:
 			break;
 		case W:
-			break;
+			w0 = s.grid[s.r2d2Y][s.r2d2X];
+			if (s.r2d2Y + 1 <s.grid.length)
+				w1 = s.grid[s.r2d2Y + 1][s.r2d2X];
+			else
+				w1 = "OOB";
+
+			if (s.r2d2Y +2 <s.grid.length)
+				w2 = s.grid[s.r2d2Y + 2][s.r2d2X];
+			else
+				w2 = "OOB";
+
+			if (!w1.equals("OOB")) {
+				if (w1.equals("_")){
+					w0 = w0.replace("&", "");
+				w0 = (w0.equals("")) ? "_" : w0;
+					w1 = "&";
+				}else if (w1.contains("T") || (w1.contains("P") && !w1.contains("R"))) {
+					w0 = w0.replace("&", "");
+					w0 = (w0.equals("")) ? "_" : w0;
+					w1 += "&";
+				} else {
+					if (w1.contains("R")) {
+						if (!w2.equals("OOB"))
+						if (w2.equals("_")){
+							w1 = w1.replace("R", "");
+							w2 = "R";
+						}else if (w2.contains("T") || (w2.contains("P") && !w2.contains("R"))) {
+							w1 = w1.replace("R", "");
+							w1 += "&";
+							w2 += "R";
+							if(w2.contains("P")&&w2.contains("R")){
+								s.nRocks-=1;
+							}
+						}
+					}
+				}
+			}
+			s.grid[s.r2d2Y][s.r2d2X] = w0;
+			if (!w1.equals("OOB"))
+				s.grid[s.r2d2Y + 1][s.r2d2X] = w1;
+			if (!w2.equals("OOB"))
+				s.grid[s.r2d2Y + 2][s.r2d2X] = w2;
+			s.r2d2Y+=1;
+			return s;
 		default:
 			break;
 		}
@@ -268,16 +347,14 @@ public class R2D2Escape extends SearchProblem {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		R2D2Escape x = new R2D2Escape();
-//		x.genGrid();
-//		x.printState(x.initialState);
-		 String g[][] = { { "_", "P", "_", "_" }, { "_", "R", "_", "_" }, {
-		 "_", "&", "_", "_" },
-		 { "X", "X", "X", "_" } };
-		 State s = new State(g, 1, 2, 1);
-		 x.printState(s);
-		 x.printState(x.transferFunction(s, 1));
+		x.genGrid();
+	x.printState(x.initialState);
+		// String g[][] = { { "_", "&", "_", "_" }, { "_", "R", "_", "_" }, {"_", "_", "_", "_" },{ "X", "X", "X", "X" } };
+		// State s = new State(g, 0, 1, 1);
+//		 x.printState(s);
+//		 x.printState(x.transferFunction(s, 4));
 		// System.out.println(x.computeActions(s));
 	}
 }
