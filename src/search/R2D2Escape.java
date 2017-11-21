@@ -45,10 +45,10 @@ public class R2D2Escape extends SearchProblem {
 		int portalX, portalY;
 		r2d2X = r2d2x;
 		r2d2Y = r2d2y;
-		prolog2.add("at(r2d2,"+r2d2x+","+r2d2y+").");
+		prolog.add("r2d2("+r2d2x+","+r2d2y+",s0).");
 		portalX = portalx;
 		portalY = portaly;
-		prolog2.add("at(portal,"+portalx+","+portaly+").");
+		prolog.add("portal("+portalx+","+portaly+").");
 		String[][] grid = new String[m][n];
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
@@ -68,8 +68,7 @@ public class R2D2Escape extends SearchProblem {
 				y = r.nextInt(m);
 			} while (!grid[y][x].equals("_"));
 			grid[y][x] = "X";
-			prolog.add("block(b"+i+").");
-			prolog2.add("at(b"+i+","+x+","+y+").");
+			prolog.add("block("+x+","+y+").");
 					}
 		prolog.add("%Rocks");
 		for (int i = 0; i < nRocks; i++) {
@@ -79,8 +78,7 @@ public class R2D2Escape extends SearchProblem {
 				y = r.nextInt(m);
 			} while (!grid[y][x].equals("_"));
 			grid[y][x] = "R";
-			prolog.add("rock(r"+i+").");
-			prolog2.add("at(r"+i+","+x+","+y+").");
+			prolog.add("rock("+x+","+y+",s0).");
 		}
 		prolog.add("%Pressure Pads");
 		for (int i = 0; i < nRocks; i++) {
@@ -93,12 +91,10 @@ public class R2D2Escape extends SearchProblem {
 
 			if (grid[y][x].contains("R")) {
 				grid[y][x] = grid[y][x] + "P";
-				prolog.add("pPad(p"+i+").");
-				prolog2.add("at(p"+i+","+x+","+y+").");
+				prolog.add("pPad("+x+","+y+").");
 			} else {
 				grid[y][x] = "P";
-				prolog.add("pPad(p"+i+").");
-				prolog2.add("at(p"+i+","+x+","+y+").");
+				prolog.add("pPad("+x+","+y+").");
 			}
 		}
 
@@ -107,11 +103,6 @@ public class R2D2Escape extends SearchProblem {
 		init.tY = portalY;
 		this.initialState = init;
 		for (String s : prolog) {
-			writer.write(s);
-			writer.newLine();
-		}
-		writer.write("%Locations at(O,X,Y).\n");
-		for (String s : prolog2) {
 			writer.write(s);
 			writer.newLine();
 		}
